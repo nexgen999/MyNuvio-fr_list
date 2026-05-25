@@ -1,47 +1,60 @@
-function getStreams(tmdbId, mediaType, season, episode) {
-    return new Promise((resolve) => {
-        fetch("https://ww1.wiflix-adresses.fun/")
-            .then(res => res.text())
-            .then(html => {
-                const domainRegex = /href="(https:\/\/wiflix\.[a-z\.]+)\/"/;
-                const matchDomain = html.match(domainRegex);
-                const baseUrl = matchDomain ? matchDomain[1] : "https://wiflix.vostfr.bid";
+async function getStreams(tmdbId, mediaType, season, episode) {
+    const streams = [];
+    const headers = {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1',
+        'Referer': 'https://ww1.wiflix-adresses.fun/'
+    };
 
-                return fetch("https://api.themoviedb.org/3/" + mediaType + "/" + tmdbId + "?api_key=844421298d0e70291c73878c0780f41d&language=fr-FR")
-                    .then(res => res.json())
-                    .then(meta => {
-                        const title = mediaType === "movie" ? meta.title : meta.name;
-                        const searchUrl = baseUrl + "/index.php?do=search&subaction=search&story=" + encodeURIComponent(title);
-                        return fetch(searchUrl);
-                    })
-                    .then(res => res.text())
-                    .then(searchHtml => {
-                        const linkRegex = new RegExp('href="(' + baseUrl.replace(/\./g, '\\.') + '\/[^"]+\.html)"');
-                        const matchLink = searchHtml.match(linkRegex);
-                        if (!matchLink) return resolve([]);
-                        return fetch(matchLink[1]);
+    try {
+        // 1. Détection de l'adresse active
+        const addrRes = await fetch("https://ww1.wiflix-adresses.fun/", { headers });
+        const addrHtml = await addrRes.text();
+        const domainMatch = addrHtml.match(/href="(https:\/\/wiflix\.[a-z\.]+)\/"/);
+        const baseUrl = domainMatch ? domainMatch[1] : "https://wiflix.vostfr.bid";
+
+        // 2. Traduction TMDB
+        const tmdbRes = await fetch(`https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=844421298d0e70291c73878c0780f41d&language=fr-FR`);
+        const meta = await tmdbRes.json();
+        const title = mediaType === "movie" ? meta.title : meta.name;
+        if (!title) return [];
+
+        // 3. Recherche Wiflix
+        const searchUrl = `${baseUrl}/index.php?do=search&subaction=search&story=${encodeURIComponent(title)}`;
+        const searchRes = await fetch(searchUrl, { headers });
+        const searchHtml = await searchRes.text();
+
+        const linkRegex = new RegExp(`href="(${baseUrl.replace(/\./g, '\\.')}\/[^"]+\.html)"`);
+        const linkMatch = searchHtml.match(linkRegex);
+        if (!linkMatch) return [];
+
+        // 4. Page de streaming
+        const pageRes = await fetch(linkMatch[1], { headers });
+        const pageHtml = await pageRes.text();
+
+        // 5. Extraction des sources directes
+        const iframeRegex = /<iframe[^>]+src=["']([^"']+)["']/g;
+        let match;
+
+        while ((match = iframeRegex.exec(pageHtml)) !== null) {
+            let videoUrl = match[1];
+            
+            if (videoUrl.includes('voe')) {
+                const voeRes = await fetch(videoUrl, { headers });
+                const voeHtml = await voeRes.text();
+                const hlsLink = voeHtml.match(/'file':\s*'([^']+)'/);
+                if (hlsLink && hlsLink[1]) {
+                    streams.push({
+                        name: "⚡ Wiflix (Voe Stream)",
+                        url: hlsLink[1],
+                        quality: "720p",
+                        title: "Lien Direct - Version Française"
                     });
-            })
-            .then(res => res ? res.text() : "")
-            .then(pageHtml => {
-                if (!pageHtml) return resolve([]);
-                const streams = [];
-                const iframeRegex = /<iframe[^>]+src=["']([^"']+)["']/g;
-                let match;
-                while ((match = iframeRegex.exec(pageHtml)) !== null) {
-                    let url = match[1];
-                    if (url.includes('uqload') || url.includes('voe') || url.includes('player')) {
-                        streams.push({
-                            name: "Wiflix",
-                            title: url.includes('voe') ? "Voe" : "Hébergeur Externe",
-                            url: url,
-                            quality: "720p"
-                        });
-                    }
                 }
-                resolve(streams);
-            })
-            .catch(() => resolve([]));
-    });
+            }
+        }
+    } catch (e) {}
+
+    return streams;
 }
+
 globalThis.getStreams = getStreams;

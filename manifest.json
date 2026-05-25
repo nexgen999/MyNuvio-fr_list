@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "scrapers": [
     {
-      "id": "anime-sama",
-      "name": "🐍 Anime-Sama",
+      "id": "animesama",
+      "name": "🐍 AnimeSama",
       "description": "Watch AnimeSama France",
       "version": "1.1.27",
       "author": "Gowaru",
@@ -16,7 +16,7 @@
       "contentLanguage": ["fr"]  
     },
     {
-      "id": "movix",
+      "id": "movix1",
       "name": "Movix VF",
       "description": "Movies and TV series in English & French (dubbed/subtitled)",
       "version": "1.0.0",

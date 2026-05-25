@@ -1,0 +1,47 @@
+function getStreams(tmdbId, mediaType, season, episode) {
+    return new Promise((resolve) => {
+        fetch("https://ww1.wiflix-adresses.fun/")
+            .then(res => res.text())
+            .then(html => {
+                const domainRegex = /href="(https:\/\/wiflix\.[a-z\.]+)\/"/;
+                const matchDomain = html.match(domainRegex);
+                const baseUrl = matchDomain ? matchDomain[1] : "https://wiflix.vostfr.bid";
+
+                return fetch("https://api.themoviedb.org/3/" + mediaType + "/" + tmdbId + "?api_key=844421298d0e70291c73878c0780f41d&language=fr-FR")
+                    .then(res => res.json())
+                    .then(meta => {
+                        const title = mediaType === "movie" ? meta.title : meta.name;
+                        const searchUrl = baseUrl + "/index.php?do=search&subaction=search&story=" + encodeURIComponent(title);
+                        return fetch(searchUrl);
+                    })
+                    .then(res => res.text())
+                    .then(searchHtml => {
+                        const linkRegex = new RegExp('href="(' + baseUrl.replace(/\./g, '\\.') + '\/[^"]+\.html)"');
+                        const matchLink = searchHtml.match(linkRegex);
+                        if (!matchLink) return resolve([]);
+                        return fetch(matchLink[1]);
+                    });
+            })
+            .then(res => res ? res.text() : "")
+            .then(pageHtml => {
+                if (!pageHtml) return resolve([]);
+                const streams = [];
+                const iframeRegex = /<iframe[^>]+src=["']([^"']+)["']/g;
+                let match;
+                while ((match = iframeRegex.exec(pageHtml)) !== null) {
+                    let url = match[1];
+                    if (url.includes('uqload') || url.includes('voe') || url.includes('player')) {
+                        streams.push({
+                            name: "Wiflix",
+                            title: url.includes('voe') ? "Voe" : "Hébergeur Externe",
+                            url: url,
+                            quality: "720p"
+                        });
+                    }
+                }
+                resolve(streams);
+            })
+            .catch(() => resolve([]));
+    });
+}
+globalThis.getStreams = getStreams;

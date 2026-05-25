@@ -3,7 +3,76 @@
   "description": "Mes sources de streaming et d'animes francophones personnalisées",
   "version": "1.0.0",
   "author": "nexgen999",
+  "type": "repository",
   "providers": [
+    {
+      "id": "com.nexgen999.frenchstream",
+      "name": "French-Stream (FR)",
+      "description": "Films et Séries en VF/VOSTFR via fstream.info",
+      "version": "1.0.0",
+      "author": "nexgen999",
+      "supportedTypes": ["movie", "tv"],
+      "filename": "https://raw.githubusercontent.com/nexgen999/MyNuvio-fr_list/main/frenchstream.js",
+      "enabled": true,
+      "contentLanguage": ["fr"]
+    },
+    {
+      "id": "com.nexgen999.wiflix",
+      "name": "Wiflix (FR)",
+      "description": "Films et Séries. Résolution d'adresse dynamique via wiflix-adresses.fun",
+      "version": "1.0.0",
+      "author": "nexgen999",
+      "supportedTypes": ["movie", "tv"],
+      "filename": "https://raw.githubusercontent.com/nexgen999/MyNuvio-fr_list/main/wiflix.js",
+      "enabled": true,
+      "contentLanguage": ["fr"]
+    },
+    {
+      "id": "com.nexgen999.juststream",
+      "name": "JustStream (FR)",
+      "description": "Catalogue Films & Séries en Streaming Direct",
+      "version": "1.0.0",
+      "author": "nexgen999",
+      "supportedTypes": ["movie", "tv"],
+      "filename": "https://raw.githubusercontent.com/nexgen999/MyNuvio-fr_list/main/juststream.js",
+      "enabled": true,
+      "contentLanguage": ["fr"]
+    },
+    {
+      "id": "com.nexgen999.franime",
+      "name": "FrAnime (FR)",
+      "description": "Animes en VF et VOSTFR (Léger et Rapide)",
+      "version": "1.0.0",
+      "author": "nexgen999",
+      "supportedTypes": ["tv"],
+      "filename": "https://raw.githubusercontent.com/nexgen999/MyNuvio-fr_list/main/franime.js",
+      "enabled": true,
+      "contentLanguage": ["fr"]
+    },
+    {
+      "id": "com.nexgen999.animesama",
+      "name": "Anime-Sama (FR)",
+      "description": "Le catalogue Anime-Sama avec redirection automatique",
+      "version": "1.0.0",
+      "author": "nexgen999",
+      "supportedTypes": ["tv"],
+      "filename": "https://raw.githubusercontent.com/nexgen999/MyNuvio-fr_list/main/animesama.js",
+      "enabled": true,
+      "contentLanguage": ["fr"]
+    },
+    {
+      "id": "com.nexgen999.voiranime",
+      "name": "VoirAnime (FR)",
+      "description": "Animes avec gestion de sous-domaine adaptatif (v10...)",
+      "version": "1.0.0",
+      "author": "nexgen999",
+      "supportedTypes": ["tv"],
+      "filename": "https://raw.githubusercontent.com/nexgen999/MyNuvio-fr_list/main/voiranime.js",
+      "enabled": true,
+      "contentLanguage": ["fr"]
+    }
+  ],
+  "plugins": [
     {
       "id": "com.nexgen999.frenchstream",
       "name": "French-Stream (FR)",
